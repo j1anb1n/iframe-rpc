@@ -1,2 +1,2 @@
 all:
-	uglifyjs src/simpleXDM.js > dist/simpleXDM.js
+	node build.js
