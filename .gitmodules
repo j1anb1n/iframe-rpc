@@ -1,3 +1,6 @@
 [submodule "lib/json"]
 	path = lib/json
 	url = https://github.com/douglascrockford/JSON-js.git
+[submodule "lib/Qunit"]
+	path = lib/Qunit
+	url = https://github.com/jquery/qunit.git

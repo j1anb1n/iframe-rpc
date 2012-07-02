@@ -1,6 +1,6 @@
-!function (Behavior) {
+!function (Behavior, util) {
     Behavior.verify = function (config) {
-        if (undef(config.initiate)) {
+        if (util.isUndefined(config.initiate)) {
             throw new Error("settings.initiate is not set");
         }
         var pub, mySecret, theirSecret, verified = false;
@@ -15,14 +15,14 @@
                 mySecret = "";
                 theirSecret = "";
 
-                var queue = new easyXDM.stack.QueueBehavior({
+                var cache = new Behavior.cache({
                     remove: true
                 });
                 pub.up.reset();
-                queue.up = pub.up;
-                pub.up.down = queue;
-                pub.up = queue;
-                queue.down = pub;
+                cache.up = pub.up;
+                pub.up.down = cache;
+                pub.up = cache;
+                cache.down = pub;
                 if (config.initiate) {
                     startVerification();
                 }
@@ -57,4 +57,4 @@
             }
         });
     };
-}(simpleXDM.behavior);
+}(simpleXDM.behavior, simpleXDM._util);
