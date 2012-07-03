@@ -6,6 +6,22 @@
     <script src="http://code.jquery.com/jquery-latest.js"></script>
     <link rel="stylesheet" href="http://code.jquery.com/qunit/git/qunit.css" type="text/css" media="screen" />
     <script type="text/javascript" src="http://code.jquery.com/qunit/git/qunit.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/simpleXDM.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/util-lang.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/util-path.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/util-event.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/util-json.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/util-dom.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/util.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/behavior-verify.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/behavior-queue.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/behavior-reliable.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/behavior-buffer.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/behavior-rpc.js"></script>
+
+    <script type="text/javascript" charset="utf-8" src="../src/transport-hash.js"></script>
+    <script type="text/javascript" charset="utf-8" src="../src/transport-postMessage.js"></script>
+    
     <script type="text/javascript" charset="utf-8">
         $(document).ready(function () {
             module("Module Basic");
@@ -18,6 +34,16 @@
             module('Module util-dom');
             test("create frame", function () {
                 ok(true, 'this test is fine');
+            });
+            module('Module simpleXDM');
+            test("init simpleXDM", function () {
+                var xdm = simpleXDM({
+                    method: {
+                        say: function (word) {
+                            console.log(word);
+                        }
+                    }
+                });
             });
         });
     </script>

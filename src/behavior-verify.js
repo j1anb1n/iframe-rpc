@@ -1,8 +1,5 @@
 !function (Behavior, util) {
     Behavior.verify = function (config) {
-        if (util.isUndefined(config.initiate)) {
-            throw new Error("settings.initiate is not set");
-        }
         var pub, mySecret, theirSecret, verified = false;
 
         function startVerification(){
@@ -15,15 +12,13 @@
                 mySecret = "";
                 theirSecret = "";
 
-                var cache = new Behavior.cache({
-                    remove: true
-                });
+                var cache = new Behavior.buffer();
                 pub.up.reset();
                 cache.up = pub.up;
                 pub.up.down = cache;
                 pub.up = cache;
                 cache.down = pub;
-                if (config.initiate) {
+                if (config.isHost) {
                     startVerification();
                 }
             },
@@ -35,7 +30,7 @@
                     }
                     else if (!theirSecret) {
                         theirSecret = message;
-                        if (!config.initiate) {
+                        if (!config.isHost) {
                             startVerification();
                         }
                         pub.down.outgoing(message);
@@ -51,7 +46,7 @@
                 pub.down.outgoing(mySecret + "_" + message, origin, fn);
             },
             callback: function(success){
-                if (config.initiate) {
+                if (config.isHost) {
                     startVerification();
                 }
             }
