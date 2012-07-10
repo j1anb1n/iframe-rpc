@@ -3,7 +3,24 @@ var simpleXDM = function (config) {
     if (!config) {
         throw new Error('config is required');
     }
+    var map = {};
+    
     var handler = function (method) {
+        
+    };
+    
+    
+    var transport = util.createTransport(config);
+    
+    transport.on('message', function () {
+        
+    });
+    
+    transport.send('');
+    
+    var rpc = new Rpc();
+    
+    handler = function (method) {
         var slice = Array.prototype.slice;
         return handler.exec(method).apply(handler, slice.call(arguments, 1));
     };
@@ -20,8 +37,6 @@ var simpleXDM = function (config) {
             }
         }
     }
-
-    console.dir(simpleXDM);
     // create the stack
     var stack = util.createStack(config);
     stack.push(new simpleXDM.behavior.rpc(config));
@@ -44,7 +59,13 @@ var simpleXDM = function (config) {
     handler.destroy = function(){
         stack.destroy();
     };
-
+    handler.set = function (id, fn) {
+        map[id] = fn;
+    };
+    
+    
+    
+    
     stack.init();
     return handler;
 };
