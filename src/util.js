@@ -90,7 +90,7 @@
         return stackEl;
     };
     
-    util.createStack = function(config){
+    util.createTransport = function(config){
         var query = util.windowName.get('simpleXDM'), protocol = config.protocol, stack;
         var isHost = config.isHost = config.isHost || util.lang.isUndefined(query && query.protocol);
         
@@ -149,7 +149,27 @@
                 break;
         }
         stack.push(new simpleXDM.behavior.buffer(config));
-        return stack;
+        var pub = {
+            incoming: function (message) {
+                console.log('incoming', message);
+            }
+            ,init: function () {
+                console.log('init');
+                this.down.init();
+            }
+            ,callback: function () {
+                console.log('inited');
+            }
+            ,reset: function () {
+                console.log('reset');
+            }
+        }
+        stack.push(pub);
+        stack = util.chainStack(stack);
+
+        return {
+            send: pub.outgoing
+        };
     };
     util.rpc = {
         stringify: (function (){
