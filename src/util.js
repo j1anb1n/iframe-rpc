@@ -163,12 +163,13 @@
             ,reset: function () {
                 console.log('reset');
             }
-        }
+        };
         stack.push(pub);
         stack = util.chainStack(stack);
 
         return {
             send: pub.outgoing
+            ,init: pub.init
         };
     };
     util.rpc = {
@@ -203,7 +204,7 @@
                     message.params = slice.call(arguments, 0);
                 }
                 return [message, callback];
-            }
-        })();
-    }
+            };
+        })()
+    };
 }(simpleXDM._util);

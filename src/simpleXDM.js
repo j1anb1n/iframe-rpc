@@ -13,12 +13,12 @@ var simpleXDM = function (config) {
                 methods[m] = {
                     scope: {}
                     ,fn: ms[m]
-                }
+                };
             } else {
                 methods[m] = {
                     scope: ms[m].scope
                     ,fn: ms[m].fn
-                }
+                };
             }
         }
     }
@@ -26,28 +26,28 @@ var simpleXDM = function (config) {
     var transport = util.createTransport(config);
     transport.sendJSON = function (message) {
         this.send(util.JSON.stringify(message));
-    }
+    };
 
     var Fn = function (method) {
         var results = util.rpc.stringify.apply({}, arguments);
         var message = results[0];
         callbacks[message.id] = results[1];
         transport.sendJSON(message);
-    }
+    };
 
     Fn.set = function(id, method) {
         if (typeof method === 'function') {
             methods[id] = {
                 scope: {}
                 ,fn: method
-            }
+            };
         } else {
             methods[id] = {
                 scope: method.scope
                 ,fn: method.fn
-            }
+            };
         }
-    }
+    };
     Fn.destroy = function(){
         transport.destroy();
     };
