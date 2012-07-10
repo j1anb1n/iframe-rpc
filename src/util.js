@@ -1,6 +1,4 @@
 !function (util) {
-
-
     // Window.name
     util.windowName = function (win) {
         if (win.name === "") {
@@ -153,5 +151,39 @@
         stack.push(new simpleXDM.behavior.buffer(config));
         return stack;
     };
-    
+    util.rpc = {
+        stringify: (function (){
+            var callbackCounter = 0;
+            return function (method) {
+                var slice = Array.prototype.slice;
+                var l = arguments.length, callback, message = {
+                    jsonrpc: "2.0"
+                    ,method: method
+                };
+
+                if (l > 0 && typeof arguments[l - 1] === "function") {
+                    //with callback, procedure
+                    if (l > 1 && typeof arguments[l - 2] === "function") {
+                        // two callbacks, success and error
+                        callback = {
+                            success: arguments[l - 2],
+                            error: arguments[l - 1]
+                        };
+                        message.params = slice.call(arguments, 0, l - 2);
+                    } else {
+                        // single callback, success
+                        callback = {
+                            success: arguments[l - 1]
+                        };
+                        message.params = slice.call(arguments, 0, l - 1);
+                    }
+                    message.id = ++callbackCounter;
+                } else {
+                    // no callbacks, a notification
+                    message.params = slice.call(arguments, 0);
+                }
+                return [message, callback];
+            }
+        })();
+    }
 }(simpleXDM._util);
