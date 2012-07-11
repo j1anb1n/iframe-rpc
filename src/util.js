@@ -91,7 +91,7 @@
     };
     
     util.createTransport = function(config){
-        var query = util.windowName.get('simpleXDM'), protocol = config.protocol, stack;
+        var query = util.windowName.get('simpleXDM'), protocol = config.protocol, transport;
         var isHost = config.isHost = config.isHost || util.lang.isUndefined(query && query.protocol);
         
         if (!isHost) {
@@ -137,40 +137,13 @@
                     interval: 100
                     ,delay: 2000
                 });
-                stack = [
-                    new simpleXDM.transport.hashTransport(config)
-                    ,new simpleXDM.behavior.reliable(config)
-                    ,new simpleXDM.behavior.queue(config)
-                    ,new simpleXDM.behavior.verify(config)
-                ];
+                transport = new simpleXDM.transport.hashTransport(config);
                 break;
             case "1":
-                stack = [new simpleXDM.transport.postMessageTransport(config)];
+                transport = new simpleXDM.transport.postMessageTransport(config);
                 break;
         }
-        stack.push(new simpleXDM.behavior.buffer(config));
-        var pub = {
-            incoming: function (message) {
-                console.log('incoming', message);
-            }
-            ,init: function () {
-                console.log('init');
-                this.down.init();
-            }
-            ,callback: function () {
-                console.log('inited');
-            }
-            ,reset: function () {
-                console.log('reset');
-            }
-        };
-        stack.push(pub);
-        stack = util.chainStack(stack);
-
-        return {
-            send: pub.outgoing
-            ,init: pub.init
-        };
+        return transport;
     };
     util.rpc = {
         stringify: (function (){

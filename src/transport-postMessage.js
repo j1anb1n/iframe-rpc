@@ -1,5 +1,6 @@
-!function (Transport) {
+!function (Transport, util) {
     Transport.postMessageTransport = function (config) {
         
     };
-}(simpleXDM.transport);
+    util.lang.extend(Transport.postMessageTransport.prototype, util.eventEmiter, true);
+}(simpleXDM.transport, simpleXDM._util);
