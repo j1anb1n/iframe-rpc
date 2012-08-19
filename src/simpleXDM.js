@@ -1,5 +1,5 @@
-var simpleXDM = function (config) {
-    var util = simpleXDM._util;
+var RPC = function (config) {
+    var util = RPC._util;
     var emptyFn = function () {};
     config = config || {};
 
@@ -125,7 +125,7 @@ var simpleXDM = function (config) {
     
     // get the iframe
     if (config.isHost) {
-        var getIframe = simpleXDM.Fn.get(config.channel + '-get_iframe');
+        var getIframe = RPC.Fn.get(config.channel + '-get_iframe');
         if (getIframe) {
             Fn.iframe = getIframe();
         }
@@ -136,15 +136,15 @@ var simpleXDM = function (config) {
     return Fn;
 };
 
-simpleXDM._util = {};
+RPC._util = {};
 
-simpleXDM.transport = {};
+RPC.transport = {};
 
-simpleXDM.behavior = {};
+RPC.behavior = {};
 
-!function (simpleXDM) {
++function (RPC) {
     var map = {};
-    simpleXDM.Fn = {
+    RPC.Fn = {
         get: function (id, del) {
             var fn = map[id];
             if (del) {
@@ -156,4 +156,4 @@ simpleXDM.behavior = {};
             map[id] = fn;
         }
     };
-}(simpleXDM);
+}(RPC);
