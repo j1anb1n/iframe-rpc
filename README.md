@@ -1,4 +1,4 @@
-simpleXDM
+RPC.js
 =========
 
-a Cross-Domain message framework developed base on easyXDM.
+an easy to use JavaScript Cross-Domain RPC framework developed base on easyXDM.
