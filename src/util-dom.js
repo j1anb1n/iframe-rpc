@@ -1,5 +1,4 @@
-!
-function (util) {
++function (util) {
     var root = util.dom = {};
     
     // Event
@@ -88,19 +87,28 @@ function (util) {
     }
     
     var createFrame = root.createFrame = function (config){
-        var nameString = util.JSON.stringify({'simplexdm': config.props.name});
-        var frame = document.createElement("<iframe name='" + nameString + "'/>");
+        var iframe;
+        var nameString = util.JSON.stringify({'RPC': {
+            remote: window.location.href
+            ,channel: config.channel
+            ,protocol: config.protocol
+            ,remoteDomain: document.domain
+        }});
 
-        util.windowName(frame).set('easyxdm', config.props.name);
-        delete config.props.name;
+        try {
+            iframe = document.createElement("<iframe name='" + nameString + "'/>");
+        } catch (ex) {
+            iframe = document.createElement("IFRAME");
+            iframe.name = nameString;
+        }
 
         if (typeof config.container == "string") {
             config.container = document.getElementById(config.container);
         }
-
+        util.lang.extend(iframe.style, config.props.style, true);
         if (!config.container) {
             // This needs to be hidden like this, simply setting display:none and the like will cause failures in some browsers.
-            util.lang.extend(frame.style, {
+            util.lang.extend(iframe.style, {
                 position: "absolute",
                 top: "-2000px",
                 // Avoid potential horizontal scrollbar
@@ -118,19 +126,18 @@ function (util) {
         config.props.src = 'javascript:false';
 
         // transfer properties to the frame
-        util.lang.extend(frame, config.props, true);
-        frame.border = frame.frameBorder = 0;
-        frame.allowTransparency = true;
-        config.container.appendChild(frame);
+        util.lang.extend(iframe, config.props, true);
+        iframe.border = iframe.frameBorder = 0;
+        iframe.allowTransparency = true;
+        config.container.appendChild(iframe);
 
         // set the frame URL to the proper value (we previously set it to
         // "javascript:false" to work around the IE issue mentioned above)
         if (config.onLoad) {
-            on(frame, "load", config.onLoad);
+            on(iframe, "load", config.onLoad);
         }
-        frame.src = src;
-        config.props.src = src;
+        iframe.src = config.remote;
 
-        return frame;
+        return iframe;
     };
-} (simpleXDM._util);
+} (RPC._util);

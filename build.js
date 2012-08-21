@@ -2,10 +2,10 @@ var uglifyjs = require('uglify-js');
 var fs = require('fs');
 
 var files = [
-    'simpleXDM.js'
+    'RPC.js'
     
     ,'util-lang.js'
-    ,'util-path.js'
+    ,'util-url.js'
     ,'util-event.js'
     ,'util-json.js'
     ,'util-dom.js'
@@ -25,13 +25,13 @@ var c = "";
 var code = "";
 files.forEach(function (file) {
     code = fs.readFileSync('src/'+file).toString();
-    C += code;
+    C += code + "\n";
     c += gen_code(code) + "\n";
 });
-
-fs.writeFileSync('dist/simpleXDM-debug.js',C);
-fs.writeFileSync('dist/simpleXDM.js',c);
-
+fs.writeFileSync('dist/RPC-debug.js',C);
+fs.writeFileSync('dist/RPC.js',c);
+C = "GJ.add('js/util/rpc/rpc.js', [], function (require, exports, module) {\n" + C + "\n});";
+fs.writeFileSync('/Users/jianbin/developer/ganji/ganji_sta/src/js/util/rpc/rpc.js', C);
 function gen_code (code) {
     var ast = uglifyjs.parser.parse(code); // parse code and get the initial AST
     ast = uglifyjs.uglify.ast_mangle(ast); // get a new AST with mangled names

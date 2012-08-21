@@ -1,4 +1,4 @@
-!function (util) {
++function (util) {
     // Window.name
     util.windowName = function (win) {
         if (win.name === "") {
@@ -91,19 +91,7 @@
     };
     
     util.createTransport = function(config){
-        var query = util.windowName.get('simpleXDM'), protocol = config.protocol, transport;
-        var isHost = config.isHost = config.isHost || util.lang.isUndefined(query && query.protocol);
-        
-        if (!isHost) {
-            config.remote = query.remote;
-            config.channel = query.channel;
-            protocol = query.protocol;
-            if (query.remoteDomain === document.domain) {
-                config.isSameOrigin = true;
-            } else {
-                config.isSameOrigin = false;
-            }
-        }
+        var query = {}, transport;
         if (config.acl && !util.checkAcl(config.acl, util.path.getDomain(config.remote))) {
             throw new Error("Access denied for " + config.remote);
         }
@@ -111,73 +99,43 @@
         if (!config.props) {
             config.props = {};
         }
-        if (isHost) {
-            // config.channel = config.channel || "default" + channelId++;
-            // config.secret = Math.random().toString(16).substring(2);
-
-            if (util.lang.has(window, "postMessage") || util.lang.has(document, "postMessage")) {
+        if (config.isHost) {
+            if (window.postMessage || document.postMessage) {
                 /*
                  * This is supported in IE8+, Firefox 3+, Opera 9+, Chrome 2+ and Safari 4+
                  */
-                protocol = "1";
-            }
-            else {
+                config.protocol = "1";
+            } else {
                 /*
                  * This is supported in all browsers where [window].location is writable for all
                  * The resize event will be used if resize is supported and the iframe is not put
                  * into a container, else polling will be used.
                  */
-                protocol = "0";
+                config.protocol = "0";
+            }
+        } else {
+            query = util.windowName.get('RPC');
+            config.channel = query.channel;
+            config.protocol = query.protocol;
+            config.remote = query.remote;
+            if (query.remoteDomain === document.domain) {
+                config.isSameOrigin = true;
+            } else {
+                config.isSameOrigin = false;
             }
         }
-        config.protocol = protocol; // for conditional branching
-        switch (protocol) {
+        switch (config.protocol) {
             case "0":
                 util.lang.extend(config, {
                     interval: 100
                     ,delay: 2000
                 });
-                transport = new simpleXDM.transport.hashTransport(config);
+                transport = new RPC.transport.hashTransport(config);
                 break;
             case "1":
-                transport = new simpleXDM.transport.postMessageTransport(config);
+                transport = new RPC.transport.postMessageTransport(config);
                 break;
         }
         return transport;
     };
-    util.rpc = {
-        stringify: (function (){
-            var callbackCounter = 0;
-            return function (method) {
-                var slice = Array.prototype.slice;
-                var l = arguments.length, callback, message = {
-                    jsonrpc: "2.0"
-                    ,method: method
-                };
-
-                if (l > 0 && typeof arguments[l - 1] === "function") {
-                    //with callback, procedure
-                    if (l > 1 && typeof arguments[l - 2] === "function") {
-                        // two callbacks, success and error
-                        callback = {
-                            success: arguments[l - 2],
-                            error: arguments[l - 1]
-                        };
-                        message.params = slice.call(arguments, 0, l - 2);
-                    } else {
-                        // single callback, success
-                        callback = {
-                            success: arguments[l - 1]
-                        };
-                        message.params = slice.call(arguments, 0, l - 1);
-                    }
-                    message.id = ++callbackCounter;
-                } else {
-                    // no callbacks, a notification
-                    message.params = slice.call(arguments, 0);
-                }
-                return [message, callback];
-            };
-        })()
-    };
-}(simpleXDM._util);
+} (RPC._util);

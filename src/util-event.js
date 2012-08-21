@@ -1,50 +1,49 @@
-!function (util) {
-    util.eventEmiter = function () {
++function (util) {
+    util.eventEmiter = function (that) {
         var callbacks = {};
-        return (pub = {
-            on: function (event, callback, scope) {
-                callbacks[event] = callbacks[event] || [];
-                callbacks[event].push({
-                    fn: callback
-                    ,scope: scope
-                });
+
+        that.on = function (event, callback, scope) {
+            callbacks[event] = callbacks[event] || [];
+            callbacks[event].push({
+                fn: callback
+                ,scope: scope
+            });
+        }
+        that.once = function (event, callback, scope) {
+            callbacks[event] = callbacks[event] || [];
+            callbacks[event].push({
+                fn: callback
+                ,scope: scope
+                ,type: 1 // if (cb.type) { call_once }
+            });
+        }
+        that.off = function (event, callback) {
+            if (!callbacks) {
+                callbacks[event] = []; //remove all events
             }
-            ,once: function (event, callback, scope) {
-                callbacks[event] = callbacks[event] || [];
-                callbacks[event].push({
-                    fn: callback
-                    ,scope: scope
-                    ,type: 1 // if (cb.type) { call_once }
-                });
+            
+            var cbs = callbacks[event] = callbacks[event] || [], cb, temp = [];
+            while(cbs.length) {
+                 cb = cbs.shift();
+                 if (cb.fn !== callback) {
+                     temp.push(cb);
+                 }
             }
-            ,off: function (event, callback) {
-                if (!callbacks) {
-                    callbacks[event] = []; //remove all events
+            callbacks[event] = temp;
+        }
+        that.emit = function (event) {
+            var cbs = callbacks[event] = callbacks[event] || [], cb, temp = [];
+            var args = Array.prototype.slice.call(arguments, 1);
+            while(cbs.length) {
+                cb = cbs.shift();
+                cb.fn.apply(cb.scope || this, [event].concat(args));
+                if (!cb.type) {
+                    temp.push(cb);
                 }
-                
-                var cbs = callbacks[event] = callbacks[event] || [], cb, temp = [];
-                while(cbs.length) {
-                     cb = cbs.shift();
-                     if (cb.fn !== callback) {
-                         temp.push(cb);
-                     }
-                }
-                callbacks[event] = temp;
             }
-            ,emit: function (event) {
-                var cbs = callbacks[event] = callbacks[event] || [], cb, temp = [];
-                var args = Array.prototype.slice.call(arguments, 1);
-                while(cbs.length) {
-                    cb = cbs.shift();
-                    cb.fn.apply(cb.scope || this, [event].concat(args));
-                    if (!cb.type) {
-                        temp.push(cb);
-                    }
-                }
-                callbacks[event] = temp;
-            }
-            ,addListener: pub.on
-            ,removeListener: pub.off
-        });
+            callbacks[event] = temp;
+        }
+        that.addListener = that.on;
+        that.removeListener = that.off
     };
-}(simpleXDM._util);
+} (RPC._util);

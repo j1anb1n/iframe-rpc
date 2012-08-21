@@ -1,133 +1,114 @@
 var RPC = function (config) {
+    var me = this;
     var util = RPC._util;
     var emptyFn = function () {};
     config = config || {};
+    config.isHost = config.remote ? true : false;
 
     var callbacks = {};
-    var methods = {};
-    var ms = config.method = config.method || {};
+    var methods = config.method = config.method || {};
+    var transport = util.createTransport(config);
+    var messageID = 0;
+    transport.sendJSON = function (message) {
+        this.send(util.JSON.stringify(message)); // this === transport
+    };
+    transport.on('ready', function () {
+        if (util.lang.isFunction(config.onReady)) {
+            config.onReady.call(me);
+        }
+    });
+    var Fn = function (method, params, onSuccess, onError) {
+        var message = {
+            jsonrpc: "2.0"
+            ,method: method
+            ,params: params
+        };
 
-    for (var m in ms) { 
-        if (ms.hasOwnProperty(m)) {
-            if (typeof ms[m] === 'function') {
-                methods[m] = {
-                    scope: {}
-                    ,fn: ms[m]
-                };
-            } else {
-                methods[m] = {
-                    scope: ms[m].scope
-                    ,fn: ms[m].fn
-                };
+        if (util.lang.isFunction(params)) {
+            onError = onSuccess;
+            onSuccess = params;
+        }
+
+        if (util.lang.isFunction(onSuccess) || util.lang.isFunction(onError)) {
+            message.id = messageID;
+            callbacks[messageID] = {
+                success: onSuccess || function () {}
+                ,error: onError || function () {}
             }
         }
+
+        messageID++;
+        setTimeout(function () {
+            transport.sendJSON(message);
+        }, 0);
     }
 
-    var transport = util.createTransport(config);
-    transport.sendJSON = function (message) {
-        this.send(util.JSON.stringify(message));
-    };
-
-    var Fn = function (method) {
-        var results = util.rpc.stringify.apply({}, arguments);
-        var message = results[0];
-        callbacks[message.id] = results[1];
-        transport.sendJSON(message);
-    };
-
     Fn.set = function(id, method) {
-        if (typeof method === 'function') {
-            methods[id] = {
-                scope: {}
-                ,fn: method
-            };
-        } else {
-            methods[id] = {
-                scope: method.scope
-                ,fn: method.fn
-            };
-        }
+        methods[id] = method;
     };
     Fn.destroy = function(){
+        messageID = 0;
+        methods = {};
+        callbacks = {};
         transport.destroy();
     };
 
-    transport.on('message', function (message) {
+    transport.on('message', function (e, message) {
+        message = util.JSON.parse(message);
+
         if (message.method) { // exec method
-            execMethod(message.method, message.id, methods[message.method], message.params);
-        } else { // exec callback
+            execMethod(message);
+        } else if (message.id) { // exec callback
             var callback = callbacks[message.id];
-            if (message.error) {
-                if (callback.error) {
+            console.log('call callback', message, callback);
+            if (callback) {
+                if (message.result) {
+                    callback.success(message.result);
+                } else {
                     callback.error(message.error);
                 }
-            } else if (callback.success) {
-                callback.success(message.result);
             }
-            delete callbacks[message.id];
         }
     });
 
-    function execMethod(method, id, func, params) {
-        if (!func) {
-            if (id) {
-                transport.sendJSON({
-                    id: id
-                    ,error: {
-                        code: -32601,
-                        message: "Procedure not found."
-                    }
-                });
-            }
-            return;
-        }
-
-        var success, error;
-        if (id) {
-            success = function(result){
-                success = emptyFn;
-                transport.sendJSON({
-                    id: id,
-                    result: result
-                });
-            };
-            error = function(message, data){
-                error = emptyFn;
-                var msg = {
-                    id: id,
-                    error: {
-                        code: -32099,
-                        message: message
-                    }
-                };
-                if (data) {
-                    msg.error.data = data;
+    function execMethod(message) {
+        var response = {
+            success: function (data) {
+                if (message.id) {
+                    transport.sendJSON({
+                        id: message.id
+                        ,result: data
+                    });
                 }
-                transport.sendJSON(msg);
-            };
-        } else {
-            success = error = emptyFn;
-        }
-        // Call local method
-        if (!util.lang.isArray(params)) {
-            params = [params];
-        }
-        try {
-            var result = func.fn.apply(func.scope, params.concat([success, error]));
-            if (!util.lang.isUndefined(result)) {
-                success(result);
+                return;
             }
-        } 
-        catch (ex1) {
-            error(ex1.message);
+            ,error: function (errorMsg, data, code) {
+                if (message.id) {
+                    var msg = {
+                        id: message.id
+                        ,code: code || -32099
+                        ,message: errorMsg
+                    }
+                    if (data) {
+                        msg.data = data;
+                    }
+                    transport.sendJSON(msg);
+                }
+                return;
+            }
         }
-    }
-    
-    // get the iframe
-    if (config.isHost) {
-        var getIframe = RPC.Fn.get(config.channel + '-get_iframe');
-        if (getIframe) {
-            Fn.iframe = getIframe();
+        var fn = methods[message.method];
+        if (!util.lang.isFunction(fn)) {
+            return response.error("Procedure not found.", null, -32601);
+        } else {
+            try {
+                var result = fn.apply({}, message.params);
+                if (result) {
+                    response.success(result);
+                }
+            } catch (ex) {
+                response.error(ex.message, ex.data);
+            }
         }
     }
 
@@ -135,7 +116,6 @@ var RPC = function (config) {
     transport.init();
     return Fn;
 };
-
 RPC._util = {};
 
 RPC.transport = {};
@@ -156,4 +136,7 @@ RPC.behavior = {};
             map[id] = fn;
         }
     };
+    if (module) {
+        module.exports = RPC;
+    }
 }(RPC);

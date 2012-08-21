@@ -1,4 +1,4 @@
-!function (util) {
++function (util) {
     var AP = Array.prototype, OP = Object.prototype, FP = Function.prototype;
     
     var slice               = AP.slice
@@ -30,6 +30,9 @@
         ,isArray: function (obj) {
             return Object.prototype.toString.call(o) === '[object Array]';
         }
+        ,isFunction: function (obj) {
+            return typeof obj === 'function';
+        }
         ,extend: function (obj, ext, overwrite) {
             for (var prop in ext) {
                 if (overwrite) {
@@ -49,4 +52,4 @@
         ,each: each
         ,forEach: each
     };
-}(simpleXDM._util);
+} (RPC._util);

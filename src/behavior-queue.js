@@ -1,4 +1,4 @@
-!function (Behavior) {
++function (Behavior) {
     Behavior.queue = function (config) {
         var pub, queue = [], waiting = true, incoming = "", destroying, maxLength = 0, lazy = false, doFragment = false;
 
@@ -108,4 +108,4 @@
             }
         });
     };
-}(simpleXDM.behavior);
+} (RPC.behavior);

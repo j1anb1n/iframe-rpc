@@ -1,105 +1,54 @@
-!function (Transport, util) {
++function (Transport, util) {
+    var channelCounter = 0;
     Transport.postMessageTransport = function (config) {
-            var pub, frame, callerWindow, targetOrigin;
+        var self = this;
+        config.channel = 'RPC_CHANNEL_' + (channelCounter++);
+        var targetOrigin = util.url.getOrigin(config.remote);
+        var postFn = function () {};
+        util.eventEmiter(this);
 
-            function _window_onMessage(event){
-                var origin = getOrigin(event);
-                if (config.isHost && event.data === config.channel + "-reconnect") {
-                    if (util.checkAcl(config.acl, util.path.getDomainName(origin))) {
-                        targetOrigin = origin;
-                        setTimeout(function () {
-                            pub.up.callback(true);
-                        }, 0);
+        this.send = function (message) {
+            postFnHost.postMessage(config.channel + '_' + message, targetOrigin);
+        }
+
+        util.dom.on(window, 'message', function (event) {
+            console.log(window.location.href, 'on message', event.data);
+            if (event.data.indexOf(config.channel) === 0) {
+                var origin = util.url.getDomain(getOrigin(event));
+                var message = event.data.substr(config.channel.length+1); // CHANNEL_ID_0_xxxxxx
+                if (util.checkAcl(config.acl, origin)) {
+                    if (message === 'ready') {
+                        self.emit('ready');
+                        if (config.isHost) {
+                            self.send('ready');
+                        }
                     } else {
-                        throw new Error(getDomainName(origin) + ' is not in Access Control List!');
+                        self.emit('message', message);
                     }
-                }
-                if (util.checkAcl(config.acl, util.path.getDomainName(origin)) && event.data.substring(0, config.channel.length + 1) == config.channel + " ") {
-                    pub.up.incoming(event.data.substring(config.channel.length + 1), origin);
+                } else {
+                    throw new Error(origin + ' is not in Access Control List!');
                 }
             }
-
-            return (pub = {
-                outgoing: function(message, domain, fn){
-                    callerWindow.postMessage(config.channel + " " + message, domain || targetOrigin);
-                    if (fn) {
-                        fn();
-                    }
-                },
-                destroy: function(){
-                    un(window, "message", _window_onMessage);
-                    if (frame) {
-                        callerWindow = null;
-                        frame.parentNode.removeChild(frame);
-                        frame = null;
-                    }
-                },
-                onDOMReady: function(){
-                    targetOrigin = getLocation(config.remote);
-                    if (config.isHost) {
-                        // add the event handler for listening
-                        var waitForReady = function(event){  
-                            if (event.data == config.channel + "-ready") {
-                                // replace the eventlistener
-                                callerWindow = ("postMessage" in frame.contentWindow) ? frame.contentWindow : frame.contentWindow.document;
-                                un(window, "message", waitForReady);
-                                on(window, "message", _window_onMessage);
-                                setTimeout(function(){
-                                    pub.up.callback(true);
-                                }, 0);
-                            }
-                        };
-                        on(window, "message", waitForReady);
-
-                        // set up the iframe
-                        apply(config.props, {
-                            src: config.remote,
-                            name: {
-                                channel: config.channel,
-                                type: 'provider',
-                                remote: window.location.protocol + "//" + window.location.host,
-                                protocol: "1" // 1 = PostMessage
-                            }
-                        });
-                        frame = createFrame(config);
-                        easyXDM.Fn.set(config.channel + '-get_iframe', function () {
-                            return frame;
-                        });
-                    }
-                    else {
-                        // add the event handler for listening
-                        on(window, "message", _window_onMessage);
-                        callerWindow = ("postMessage" in window.parent) ? window.parent : window.parent.document;
-                        var preConfig = GJ.windowName.get('easyxdm') || {};
-                        if (preConfig.connected === true) {
-                            callerWindow.postMessage(config.channel + "-reconnect", targetOrigin);
-                        } else {
-                            callerWindow.postMessage(config.channel + "-ready", targetOrigin);
-                            preConfig.connected = true;
-                            GJ.windowName.set('easyxdm', preConfig);
-                        }
-                        setTimeout(function(){
-                            pub.up.callback(true);
-                        }, 0);
-                    }
-                },
-                init: function(){
-                    whenReady(pub.onDOMReady, pub);
-                }
-            });
-        };
-        
-    };
-    util.lang.extend(Transport.postMessageTransport.prototype, util.eventEmiter, true);
+        });
+        this.init = function () {
+            if (config.isHost) {
+                var iframe = util.dom.createFrame(config);
+                postFnHost = ("postMessage" in iframe.contentWindow) ? iframe.contentWindow : iframe.contentWindow.document;
+            } else {
+                postFnHost = ("postMessage" in window.parent) ? window.parent : window.parent.document;
+                self.send('ready');
+            }
+        }
+    }
     
     function getOrigin(event){
         if (event.origin) {
             // This is the HTML5 property
-            return util.path.getLocation(event.origin);
+            return util.url.getOrigin(event.origin);
         }
         if (event.uri) {
             // From earlier implementations 
-            return util.path.getLocation(event.uri);
+            return util.url.getOrigin(event.uri);
         }
         if (event.domain) {
             // This is the last option and will fail if the 
@@ -108,4 +57,4 @@
         }
         throw "Unable to retrieve the origin of the event";
     }
-}(simpleXDM.transport, simpleXDM._util);
+}(RPC.transport, RPC._util);

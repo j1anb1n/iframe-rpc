@@ -1,4 +1,4 @@
-!function (Behavior) {
++function (Behavior) {
     Behavior.reliable = function(config){
         var pub, callback;
         var idOut = 0, idIn = 0, currentMessage = "";
@@ -37,4 +37,4 @@
             }
         });
     };
-}(simpleXDM.behavior);
+} (RPC.behavior);

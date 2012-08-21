@@ -1,4 +1,4 @@
-!function (Transport) {
++function (Transport) {
     Transport.hashTransport = function (config) {
         var pub;
         var me = this, isHost, _timer, pollInterval, _lastMsg, _msgNr, _listenerWindow, _callerWindow;
@@ -165,4 +165,4 @@
             }
         });
     };
-}(simpleXDM.transport);
+}(RPC.transport);

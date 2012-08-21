@@ -1,4 +1,4 @@
-!function (Behavior, util) {
++function (Behavior, util) {
     Behavior.verify = function (config) {
         var pub, mySecret, theirSecret, verified = false;
 
@@ -52,4 +52,4 @@
             }
         });
     };
-}(simpleXDM.behavior, simpleXDM._util);
+} (RPC.behavior, RPC._util);
