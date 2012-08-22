@@ -2,54 +2,52 @@
     Behavior.verify = function (config) {
         var pub, mySecret, theirSecret, verified = false;
 
-        function startVerification(){
-            mySecret = Math.random().toString(16).substring(2);
-            pub.down.outgoing(mySecret);
-        }
-
         return (pub = {
-            reset: function () {
-                mySecret = "";
-                theirSecret = "";
-
-                var cache = new Behavior.buffer();
-                pub.up.reset();
-                cache.up = pub.up;
-                pub.up.down = cache;
-                pub.up = cache;
-                cache.down = pub;
-                if (config.isHost) {
-                    startVerification();
-                }
-            },
-            incoming: function(message, origin){
+            incoming: function(message){
                 var indexOf = message.indexOf("_");
                 if (indexOf === -1) {
                     if (message === mySecret) {
-                        pub.up.callback(true);
-                    }
-                    else if (!theirSecret) {
+                        pub.up.ready();
+                    } else if (!theirSecret) {
                         theirSecret = message;
                         if (!config.isHost) {
                             startVerification();
                         }
                         pub.down.outgoing(message);
                     }
-                }
-                else {
+                } else {
                     if (message.substring(0, indexOf) === theirSecret) {
-                        pub.up.incoming(message.substring(indexOf + 1), origin);
+                        pub.up.incoming(message.substring(indexOf + 1));
                     }
                 }
-            },
-            outgoing: function(message, origin, fn){
-                pub.down.outgoing(mySecret + "_" + message, origin, fn);
-            },
-            callback: function(success){
+            }
+            ,outgoing: function(message, fn){
+                pub.down.outgoing(mySecret + "_" + message, fn);
+            }
+            ,init: function () {
+                pub.down.init();
+            }
+            ,ready: function(success){
                 if (config.isHost) {
                     startVerification();
                 }
             }
+            ,reset: function () {
+                mySecret = "";
+                theirSecret = "";
+                pub.up.reset();
+                if (config.isHost) {
+                    startVerification();
+                }
+            }
+            ,destory: function () {
+                pub.down.destory();
+            }
         });
+
+        function startVerification(){
+            mySecret = Math.random().toString(16).substring(2);
+            pub.down.outgoing(mySecret);
+        }
     };
 } (RPC.behavior, RPC._util);

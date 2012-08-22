@@ -28,16 +28,25 @@
             return obj === void 0;
         }
         ,isArray: function (obj) {
-            return Object.prototype.toString.call(o) === '[object Array]';
+            if (obj) {
+                return Object.prototype.toString.call(obj) === '[object Array]';
+            } else {
+                return false;
+            }
         }
         ,isFunction: function (obj) {
             return typeof obj === 'function';
         }
         ,extend: function (obj, ext, overwrite) {
             for (var prop in ext) {
-                if (overwrite) {
-                    obj[prop] = ext[prop];
-                } else if (!obj.hasOwnProperty(prop)){
+                if (prop in obj) {
+                    var member = ext[prop];
+                    if (typeof member === 'object') {
+                        util.lang.extend(obj[prop], member, overwrite);
+                    } else if (overwrite) {
+                        obj[prop] = ext[prop];
+                    }
+                } else {
                     obj[prop] = ext[prop];
                 }
             }

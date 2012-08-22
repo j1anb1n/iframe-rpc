@@ -1,6 +1,6 @@
 +function (util) {
     var root = util.dom = {};
-    
+    var HAS_NAME_PROPERTY_BUG;
     // Event
     if (util.lang.has(window, 'addEventListener')) {
         root.on = function (target, type, listener) {
@@ -87,21 +87,24 @@
     }
     
     var createFrame = root.createFrame = function (config){
+        if (typeof HAS_NAME_PROPERTY_BUG === 'undefined') {
+            testForNamePropertyBug();
+        }
         var iframe;
-        var nameString = util.JSON.stringify({'RPC': {
+        var nameString = config.nameString || util.JSON.stringify({'RPC': {
             remote: window.location.href
             ,channel: config.channel
             ,protocol: config.protocol
             ,remoteDomain: document.domain
+            ,helper: config.helper
         }});
-
-        try {
+        config.props = config.props || {};
+        if (HAS_NAME_PROPERTY_BUG) {
             iframe = document.createElement("<iframe name='" + nameString + "'/>");
-        } catch (ex) {
+        } else {
             iframe = document.createElement("IFRAME");
             iframe.name = nameString;
         }
-
         if (typeof config.container == "string") {
             config.container = document.getElementById(config.container);
         }
@@ -116,28 +119,33 @@
             }, true);
             config.container = document.body;
         }
-
         // HACK: IE cannot have the src attribute set when the frame is appended
         //       into the container, so we set it to "javascript:false" as a
         //       placeholder for now.  If we left the src undefined, it would
         //       instead default to "about:blank", which causes SSL mixed-content
         //       warnings in IE6 when on an SSL parent page.
-        var src = config.props.src;
         config.props.src = 'javascript:false';
-
         // transfer properties to the frame
-        util.lang.extend(iframe, config.props, true);
+        util.lang.extend(iframe, config.props);
         iframe.border = iframe.frameBorder = 0;
         iframe.allowTransparency = true;
         config.container.appendChild(iframe);
-
         // set the frame URL to the proper value (we previously set it to
         // "javascript:false" to work around the IE issue mentioned above)
         if (config.onLoad) {
             on(iframe, "load", config.onLoad);
         }
         iframe.src = config.remote;
-
         return iframe;
     };
+
+
+    // This tests for the bug in IE where setting the [name] property using javascript causes the value to be redirected into [submitName].
+    function testForNamePropertyBug(){
+        var form = document.body.appendChild(document.createElement("form")), input = form.appendChild(document.createElement("input"));
+        input.name =  "TEST" + Math.random().toString(16).substring(2); // in order to avoid caching issues
+        HAS_NAME_PROPERTY_BUG = input !== form.elements[input.name];
+        document.body.removeChild(form);
+    }
+
 } (RPC._util);

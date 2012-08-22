@@ -1,22 +1,49 @@
+var channelCounter = 0;
 var RPC = function (config) {
     var me = this;
     var util = RPC._util;
     var emptyFn = function () {};
     config = config || {};
     config.isHost = config.remote ? true : false;
+    config.channel = 'RPC_CHANNEL_' + (channelCounter++);
 
     var callbacks = {};
     var methods = config.method = config.method || {};
-    var transport = util.createTransport(config);
     var messageID = 0;
-    transport.sendJSON = function (message) {
-        this.send(util.JSON.stringify(message)); // this === transport
-    };
+
+    var transport = new RPC.Transport(config);
+
     transport.on('ready', function () {
         if (util.lang.isFunction(config.onReady)) {
             config.onReady.call(me);
         }
     });
+
+    transport.on('message', function (e, message) {
+        try {
+            message = util.JSON.parse(message);
+        } catch (ex) {
+            me.send({"jsonrpc": "2.0", "error": {"code": -32700, "message": "Parse error."}, "id": null});
+            return;
+        }
+        if (message.method) { // exec method
+            execMethod(message);
+        } else if (message.id) { // exec callback
+            var callback = callbacks[message.id];
+            if (callback) {
+                if (message.result) {
+                    callback.success(message.result);
+                } else {
+                    callback.error(message.error);
+                }
+            }
+        }
+    });
+
+    this.send = function (message) {
+        transport.send(util.JSON.stringify(message));
+    }
+
     var Fn = function (method, params, onSuccess, onError) {
         var message = {
             jsonrpc: "2.0"
@@ -39,7 +66,7 @@ var RPC = function (config) {
 
         messageID++;
         setTimeout(function () {
-            transport.sendJSON(message);
+            me.send(message);
         }, 0);
     }
 
@@ -53,29 +80,11 @@ var RPC = function (config) {
         transport.destroy();
     };
 
-    transport.on('message', function (e, message) {
-        message = util.JSON.parse(message);
-
-        if (message.method) { // exec method
-            execMethod(message);
-        } else if (message.id) { // exec callback
-            var callback = callbacks[message.id];
-            console.log('call callback', message, callback);
-            if (callback) {
-                if (message.result) {
-                    callback.success(message.result);
-                } else {
-                    callback.error(message.error);
-                }
-            }
-        }
-    });
-
     function execMethod(message) {
         var response = {
             success: function (data) {
                 if (message.id) {
-                    transport.sendJSON({
+                    me.send({
                         id: message.id
                         ,result: data
                     });
@@ -86,13 +95,15 @@ var RPC = function (config) {
                 if (message.id) {
                     var msg = {
                         id: message.id
-                        ,code: code || -32099
-                        ,message: errorMsg
+                        ,error: {
+                            code: code || -32099
+                            ,message: errorMsg
+                        }
                     }
                     if (data) {
                         msg.data = data;
                     }
-                    transport.sendJSON(msg);
+                    me.send(msg);
                 }
                 return;
             }
@@ -102,41 +113,42 @@ var RPC = function (config) {
             return response.error("Procedure not found.", null, -32601);
         } else {
             try {
-                var result = fn.apply({}, message.params);
-                if (result) {
-                    response.success(result);
+                if (!util.lang.isArray(message.params)) {
+                    message.params = [message.params];
                 }
+                var result = fn.apply({}, message.params);
             } catch (ex) {
                 response.error(ex.message, ex.data);
             }
+            if (result) {
+                response.success(result);
+            }
         }
     }
-
     // init the transport
     transport.init();
     return Fn;
 };
 RPC._util = {};
 
-RPC.transport = {};
-
 RPC.behavior = {};
 
-+function (RPC) {
-    var map = {};
-    RPC.Fn = {
-        get: function (id, del) {
-            var fn = map[id];
-            if (del) {
-                delete map[id];
-            }
-            return fn;
++function () {
+    var callbacks = {};
+    if (window.RPC_Fn) { return; }
+    window.RPC_Fn = {
+        set: function (key, fn) {
+            callbacks[key] = fn;
         }
-        ,set: function (id, fn) {
-            map[id] = fn;
+        ,get: function (key) {
+            return callbacks[key];
         }
-    };
-    if (module) {
-        module.exports = RPC;
+        ,remove: function (key) {
+            delete callbacks[key];
+        }
     }
-}(RPC);
+} ();
+
+if (module) {
+    module.exports = RPC;
+}

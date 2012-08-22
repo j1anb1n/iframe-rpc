@@ -57,85 +57,32 @@
     };
     
     util.chainStack = function (stackElements){
-        var stackEl, defaults = {
-            reset: function(config){
-                this.up.reset(config);
-            },
-            incoming: function(message, origin){
-                this.up.incoming(message, origin);
-            },
-            outgoing: function(message, recipient){
-                this.down.outgoing(message, recipient);
-            },
-            callback: function(success){
-                this.up.callback(success);
-            },
-            init: function(){
-                this.down.init();
-            },
-            destroy: function(){
-                this.down.destroy();
+        var stack = {
+            incoming: function () { }
+            ,outgoing: function (message) {
+                stack.down.outgoing(message);
+            }
+            ,init: function () {
+                stack.down.init();
+            }
+            ,ready: function () { }
+            ,reset: function () { }
+            ,destory: function () {
+                stack.down.destory();
             }
         };
         for (var i = 0, len = stackElements.length; i < len; i++) {
             stackEl = stackElements[i];
-            util.lang.extend(stackEl, defaults);
             if (i !== 0) {
                 stackEl.down = stackElements[i - 1];
             }
             if (i !== len - 1) {
                 stackEl.up = stackElements[i + 1];
-            }
-        }
-        return stackEl;
-    };
-    
-    util.createTransport = function(config){
-        var query = {}, transport;
-        if (config.acl && !util.checkAcl(config.acl, util.path.getDomain(config.remote))) {
-            throw new Error("Access denied for " + config.remote);
-        }
-        
-        if (!config.props) {
-            config.props = {};
-        }
-        if (config.isHost) {
-            if (window.postMessage || document.postMessage) {
-                /*
-                 * This is supported in IE8+, Firefox 3+, Opera 9+, Chrome 2+ and Safari 4+
-                 */
-                config.protocol = "1";
             } else {
-                /*
-                 * This is supported in all browsers where [window].location is writable for all
-                 * The resize event will be used if resize is supported and the iframe is not put
-                 * into a container, else polling will be used.
-                 */
-                config.protocol = "0";
-            }
-        } else {
-            query = util.windowName.get('RPC');
-            config.channel = query.channel;
-            config.protocol = query.protocol;
-            config.remote = query.remote;
-            if (query.remoteDomain === document.domain) {
-                config.isSameOrigin = true;
-            } else {
-                config.isSameOrigin = false;
+                stackEl.up = stack;
+                stack.down = stackEl;
             }
         }
-        switch (config.protocol) {
-            case "0":
-                util.lang.extend(config, {
-                    interval: 100
-                    ,delay: 2000
-                });
-                transport = new RPC.transport.hashTransport(config);
-                break;
-            case "1":
-                transport = new RPC.transport.postMessageTransport(config);
-                break;
-        }
-        return transport;
+        return stack;
     };
 } (RPC._util);

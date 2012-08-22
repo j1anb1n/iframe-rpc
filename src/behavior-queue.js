@@ -1,21 +1,17 @@
 +function (Behavior) {
     Behavior.queue = function (config) {
-        var pub, queue = [], waiting = true, incoming = "", destroying, maxLength = 0, lazy = false, doFragment = false;
+        var pub, queue = [], waiting = true, incoming = "", maxLength = 1500;
 
         function dispatch(){
-            if (config.remove && queue.length === 0) {
-                removeFromStack(pub);
-                return;
-            }
-            if (waiting || queue.length === 0 || destroying) {
+            if (waiting || queue.length === 0) {
                 return;
             }
             waiting = true;
             var message = queue.shift();
-            pub.down.outgoing(message.data, message.origin, function(success){
+            pub.down.outgoing(message.data, function(){
                 if (message.callback) {
                     setTimeout(function(){
-                        message.callback(success);
+                        message.callback();
                     }, 0);
                 }
                 waiting = false;
@@ -23,56 +19,18 @@
             });
         }
         return (pub = {
-            init: function(){
-                if (undef(config)) {
-                    config = {};
+            incoming: function(message){
+                var indexOf = message.indexOf("_"), seq = parseInt(message.substring(0, indexOf), 10);
+                incoming += message.substring(indexOf + 1);
+                if (seq === 0) {
+                    message = incoming;
+                    incoming = "";
+                    pub.up.incoming(message);
                 }
-                if (config.maxLength) {
-                    maxLength = config.maxLength;
-                    doFragment = true;
-                }
-                if (config.lazy) {
-                    lazy = true;
-                }
-                else {
-                    pub.down.init();
-                }
-            },
-            callback: function(success){
-                waiting = false;
-                var up = pub.up; // in case dispatch calls removeFromStack
-                dispatch();
-                up.callback(success);
-            },
-            reset: function (config) {
-                waiting = false;
-                var up = pub.up; // in case dispatch calls removeFromStack
-                dispatch();
-                up.reset(config);
-            },
-            incoming: function(message, origin){
-                if (doFragment) {
-                    var indexOf = message.indexOf("_"), seq = parseInt(message.substring(0, indexOf), 10);
-                    incoming += message.substring(indexOf + 1);
-                    if (seq === 0) {
-                        if (config.encode) {
-                            incoming = decodeURIComponent(incoming);
-                        }
-                        message = incoming;
-                        incoming = "";
-                        pub.up.incoming(message, origin);
-                    }
-                }
-                else {
-                    pub.up.incoming(message, origin);
-                }
-            },
-            outgoing: function(message, origin, fn){
-                if (config.encode) {
-                    message = encodeURIComponent(message);
-                }
-                var fragments = [], fragment;
-                if (doFragment) {
+            }
+            ,outgoing: function(message, fn){
+                if (message.length > maxLength) {
+                    var fragments = [], fragment;
                     // fragment into chunks
                     while (message.length !== 0) {
                         fragment = message.substring(0, maxLength);
@@ -83,27 +41,31 @@
                     while ((fragment = fragments.shift())) {
                         queue.push({
                             data: fragments.length + "_" + fragment,
-                            origin: origin,
                             callback: fragments.length === 0 ? fn : null
                         });
                     }
-                }
-                else {
+                } else {
                     queue.push({
-                        data: message,
-                        origin: origin,
+                        data: "0_" + message, // 0 means to this is the last fragment;
                         callback: fn
                     });
                 }
-                if (lazy) {
-                    pub.down.init();
-                }
-                else {
-                    dispatch();
-                }
-            },
-            destroy: function(){
-                destroying = true;
+                dispatch();
+            }
+            
+            ,init: function(){
+                pub.down.init();
+            }
+            ,ready: function(success){
+                waiting = false;
+                dispatch();
+                pub.up.ready();
+            }
+            ,reset: function (config) {
+                waiting = true;
+                pub.up.reset(config);
+            }
+            ,destroy: function(){
                 pub.down.destroy();
             }
         });

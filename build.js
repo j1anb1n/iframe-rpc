@@ -15,9 +15,11 @@ var files = [
     ,'behavior-queue.js'
     ,'behavior-reliable.js'
     ,'behavior-buffer.js'
-    
-    ,'transport-hash.js'
-    ,'transport-postMessage.js'
+    ,'behavior-hash.js'
+    ,'behavior-postMessage.js'
+    ,'behavior-sameorigin.js'
+
+    ,'transport.js'
 ];
 
 var C = "";

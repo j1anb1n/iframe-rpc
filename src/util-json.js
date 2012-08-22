@@ -1,6 +1,10 @@
 +function (util) {
     util.JSON = {
-        stringify: JSON.stringify
-        ,parse: JSON.parse
-    };
+        stringify: GJ.jsonEncode
+        ,parse: GJ.jsonDecode
+    }
+    // util.JSON = {
+    //     stringify: JSON.stringify
+    //     ,parse: JSON.parse
+    // };
 } (RPC._util);
