@@ -4,6 +4,13 @@
         getPort: function (url) {
             
         }
+        ,getMainDomain: function (url) {
+            var domain = util.url.getDomain(url);
+            var re = /([^:\/\s\.]+)\.([^:\/\s\.]+)$/;
+            if (domain && re.test(domain)) {
+                return domain.match(re)[0];
+            }
+        }
         ,getDomain: function (url) {
             return url.toLowerCase().match(reURI)[3];
         }

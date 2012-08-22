@@ -13,7 +13,13 @@
         }
 
         if (config.isHost) {
-            if (window.postMessage || document.postMessage) {
+            if (typeof config.isSameDomain === 'undefined') {
+                config.isSameDomain = util.url.getMainDomain(window.location.href) === util.url.getMainDomain(config.remote);
+            }
+
+            if (config.isSameDomain) {
+                config.protocol = "0";
+            } else if (window.postMessage || document.postMessage) {
                 /*
                  * This is supported in IE8+, Firefox 3+, Opera 9+, Chrome 2+ and Safari 4+
                  */
@@ -24,7 +30,7 @@
                  * The resize event will be used if resize is supported and the iframe is not put
                  * into a container, else polling will be used.
                  */
-                config.protocol = "0";
+                config.protocol = "2";
             }
         } else {
             query = util.windowName.get('RPC');
@@ -41,18 +47,21 @@
 
         switch (config.protocol) {
             case "0":
+                stack = [new RPC.behavior.sameorigin(config)];
+                break;
+            case "1":
+                stack = [new RPC.behavior.postMessage(config)];
+                break;
+            case "2":
                 util.lang.extend(config, {
                     interval: 100
-                    ,delay: 2000
                 });
                 stack = [new RPC.behavior.hash(config)
                         ,new RPC.behavior.reliable(config)
                         ,new RPC.behavior.queue(config)
                         ,new RPC.behavior.verify(config)];
                 break;
-            case "1":
-                stack = [new RPC.behavior.postMessage(config)];
-                break;
+
         }
         stack.push(new RPC.behavior.buffer(config));
         stack = util.chainStack(stack);
