@@ -36,7 +36,11 @@
             }
         };
     };
-    var window_name = util.windowName(window);
+    try {
+        var window_name = util.windowName(window);
+    } catch (ex) {
+        var window_name = {};
+    }
     util.lang.extend(util.windowName, window_name, true);
     // check Access Control List
     util.checkAcl = function(acl, domain){
