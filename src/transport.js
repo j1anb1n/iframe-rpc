@@ -13,11 +13,11 @@
         }
 
         if (config.isHost) {
-            if (typeof config.isSameDomain === 'undefined') {
-                config.isSameDomain = util.url.getMainDomain(window.location.href) === util.url.getMainDomain(config.remote);
+            if (typeof config.isSameOrigin === 'undefined') {
+                config.isSameOrigin = util.url.getMainDomain(window.location.href) === util.url.getMainDomain(config.remote);
             }
 
-            if (config.isSameDomain) {
+            if (config.isSameOrigin) {
                 config.protocol = "0";
             } else if (window.postMessage || document.postMessage) {
                 /*
