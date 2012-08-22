@@ -17,7 +17,7 @@
                 /*
                  * This is supported in IE8+, Firefox 3+, Opera 9+, Chrome 2+ and Safari 4+
                  */
-                config.protocol = "0";
+                config.protocol = "1";
             } else {
                 /*
                  * This is supported in all browsers where [window].location is writable for all
