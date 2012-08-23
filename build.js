@@ -32,8 +32,7 @@ files.forEach(function (file) {
 });
 fs.writeFileSync('dist/RPC-debug.js',C);
 fs.writeFileSync('dist/RPC.js',c);
-C = "GJ.add('js/util/rpc/rpc.js', [], function (require, exports, module) {\n" + C + "\n});";
-fs.writeFileSync('/Users/jianbin/developer/ganji/ganji_sta/src/js/util/rpc/rpc.js', C);
+
 function gen_code (code) {
     var ast = uglifyjs.parser.parse(code); // parse code and get the initial AST
     ast = uglifyjs.uglify.ast_mangle(ast); // get a new AST with mangled names
