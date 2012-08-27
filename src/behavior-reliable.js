@@ -36,12 +36,20 @@
             ,reset: function() {
                 idOut = 0;
                 idIn = 0;
+                idOut = 0;
+                idIn = 0;
+                currentMessage = "";
+                callback = null;
                 pub.up.reset();
             }
             ,ready: function () {
                 pub.up.ready();
             }
-            ,destory: function () {
+            ,destroy: function () {
+                idOut = 0;
+                idIn = 0;
+                currentMessage = "";
+                callback = null;
                 pub.down.destory();
             }
         });

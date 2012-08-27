@@ -45,7 +45,7 @@
                 pub.up.reset();
             }
             ,destroy: function () {
-                pub.down.destroy();
+                hashWriter.parentNode.removeChild(hashWriter);
             }
         });
 

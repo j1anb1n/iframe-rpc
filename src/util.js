@@ -71,8 +71,8 @@
             }
             ,ready: function () { }
             ,reset: function () { }
-            ,destory: function () {
-                stack.down.destory();
+            ,destroy: function () {
+                stack.down.destroy();
             }
         };
         for (var i = 0, len = stackElements.length; i < len; i++) {

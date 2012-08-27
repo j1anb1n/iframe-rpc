@@ -27,8 +27,9 @@
             ,reset: function () {
 
             }
-            ,destory: function () {
-
+            ,destroy: function () {
+                messageBuffer = [];
+                pub.down.destroy();
             }
         }
         return pub;

@@ -66,6 +66,9 @@
                 pub.up.reset(config);
             }
             ,destroy: function(){
+                queue = [];
+                waiting = true;
+                incoming = "";
                 pub.down.destroy();
             }
         });

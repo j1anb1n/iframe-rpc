@@ -40,7 +40,10 @@
                     startVerification();
                 }
             }
-            ,destory: function () {
+            ,destroy: function () {
+                mySecret = "";
+                theirSecret = "";
+
                 pub.down.destory();
             }
         });

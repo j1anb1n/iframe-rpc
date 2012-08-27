@@ -127,6 +127,7 @@ var RPC = function (config) {
     }
     // init the transport
     transport.init();
+    Fn.iframe = config.iframe;
     return Fn;
 };
 RPC._util = {};

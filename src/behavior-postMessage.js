@@ -45,8 +45,8 @@
             ,reset: function () {
 
             }
-            ,destory: function () {
-
+            ,destroy: function () {
+                config.iframe.parentNode.removeChild(config.iframe);
             }
         }
         return pub;

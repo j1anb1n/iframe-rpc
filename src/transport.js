@@ -4,7 +4,7 @@
         util.eventEmiter(this);
 
         var query = {}, transport;
-        if (config.acl && !util.checkAcl(config.acl, util.path.getDomain(config.remote))) {
+        if (config.acl && !util.checkAcl(config.acl, util.url.getDomain(config.remote))) {
             throw new Error("Access denied for " + config.remote);
         }
         
@@ -13,6 +13,9 @@
         }
 
         if (config.isHost) {
+            if (config.remote.substr(0, 4) !== 'http') {
+                config.remote = window.location.protocol + "//" + window.location.host + config.remote;
+            }
             if (typeof config.isSameOrigin === 'undefined') {
                 config.isSameOrigin = util.url.getMainDomain(window.location.href) === util.url.getMainDomain(config.remote);
             }
@@ -81,6 +84,9 @@
             stack.ready = function () {
                 me.emit('ready');
             }
+        }
+        this.destroy = function () {
+            stack.destroy();
         }
     }
 }(RPC, RPC._util);
