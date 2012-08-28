@@ -126,14 +126,14 @@
         //       warnings in IE6 when on an SSL parent page.
         config.props.src = 'javascript:false';
         // transfer properties to the frame
-        util.lang.extend(iframe, config.props);
+        util.lang.extend(iframe, config.props, true);
         iframe.border = iframe.frameBorder = 0;
         iframe.allowTransparency = true;
         config.container.appendChild(iframe);
         // set the frame URL to the proper value (we previously set it to
         // "javascript:false" to work around the IE issue mentioned above)
         if (config.onLoad) {
-            on(iframe, "load", config.onLoad);
+            util.dom.on(iframe, "load", config.onLoad);
         }
         iframe.src = config.remote;
         return iframe;

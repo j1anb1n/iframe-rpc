@@ -4,14 +4,14 @@
         getPort: function (url) {
             
         }
-        ,getMainDomain: function (url) {
+        ,getMainDomain: function (url) {  // www.xxx.com => xxx.com
             var domain = util.url.getDomain(url);
             var re = /([^:\/\s\.]+)\.([^:\/\s\.]+)$/;
             if (domain && re.test(domain)) {
                 return domain.match(re)[0];
             }
         }
-        ,getDomain: function (url) {
+        ,getDomain: function (url) {  // www.xxx.com
             var match = url.toLowerCase().match(reURI);
             if (match) {
                 return match[3];
@@ -25,6 +25,10 @@
             if (match) {
                 return match[1];
             }
+        }
+        ,removeHash: function (url) {
+            var indexOf = url.indexOf('#');
+            return url.substr(0, indexOf);
         }
     };
 } (RPC._util);
