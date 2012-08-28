@@ -14,18 +14,15 @@
                 pub.down.init();
             }
             ,ready: function () {
-                stackReady = true;
-                util.lang.each(messageBuffer, function (message) {
-                    pub.down.outgoing(message);
-                });
                 // remove frome stack
                 pub.incoming = pub.up.incoming;
                 pub.outgoing = pub.down.outgoing;
-                
-                pub.up.ready();
-            }
-            ,reset: function () {
 
+                util.lang.each(messageBuffer, function (message) {
+                    pub.outgoing(message);
+                });
+
+                pub.up.ready();
             }
             ,destroy: function () {
                 messageBuffer = [];

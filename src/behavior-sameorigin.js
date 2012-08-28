@@ -62,7 +62,7 @@
                 ,reset: function () {
 
                 }
-                ,destory: function () {
+                ,destroy: function () {
 
                 }
             }

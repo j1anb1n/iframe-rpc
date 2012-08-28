@@ -1,6 +1,6 @@
 +function (Behavior) {
     Behavior.queue = function (config) {
-        var pub, queue = [], waiting = true, incoming = "", maxLength = 1500;
+        var pub, queue = [], incoming, waiting = true, maxLength = 1500;
 
         function dispatch(){
             if (waiting || queue.length === 0) {
@@ -57,13 +57,12 @@
                 pub.down.init();
             }
             ,ready: function(success){
+                queue = [];
                 waiting = false;
+                incoming = "";
+
                 dispatch();
                 pub.up.ready();
-            }
-            ,reset: function (config) {
-                waiting = true;
-                pub.up.reset(config);
             }
             ,destroy: function(){
                 queue = [];

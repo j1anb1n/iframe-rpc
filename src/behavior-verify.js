@@ -10,7 +10,7 @@
                         pub.up.ready();
                     } else if (!theirSecret) {
                         theirSecret = message;
-                        if (!config.isHost) {
+                        if (config.isHost) {
                             startVerification();
                         }
                         pub.down.outgoing(message);
@@ -28,15 +28,10 @@
                 pub.down.init();
             }
             ,ready: function(success){
-                if (config.isHost) {
-                    startVerification();
-                }
-            }
-            ,reset: function () {
                 mySecret = "";
                 theirSecret = "";
-                pub.up.reset();
-                if (config.isHost) {
+
+                if (!config.isHost) {
                     startVerification();
                 }
             }
@@ -44,7 +39,7 @@
                 mySecret = "";
                 theirSecret = "";
 
-                pub.down.destory();
+                pub.down.destroy();
             }
         });
 

@@ -1,7 +1,6 @@
 +function (Behavior) {
     Behavior.reliable = function(config){
-        var pub, callback;
-        var idOut = 0, idIn = 0, currentMessage = "";
+        var pub, callback, idOut = 0, idIn = 0, currentMessage = "";
 
         return (pub = {
             incoming: function(message){
@@ -33,16 +32,11 @@
             ,init: function () {
                 pub.down.init();
             }
-            ,reset: function() {
-                idOut = 0;
-                idIn = 0;
+            ,ready: function () {
                 idOut = 0;
                 idIn = 0;
                 currentMessage = "";
                 callback = null;
-                pub.up.reset();
-            }
-            ,ready: function () {
                 pub.up.ready();
             }
             ,destroy: function () {
@@ -50,7 +44,8 @@
                 idIn = 0;
                 currentMessage = "";
                 callback = null;
-                pub.down.destory();
+                
+                pub.down.destroy();
             }
         });
     };
