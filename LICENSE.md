@@ -1,6 +1,6 @@
 MIT LICENSE
 
-Copyright (c) 2012 Jianbin Chan, https://github.com/j1anb1n/simpleXDM
+Copyright (c) 2012 Jianbin Chan, https://github.com/j1anb1n/iframe-rpc
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
