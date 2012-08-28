@@ -4,9 +4,6 @@
         util.eventEmiter(this);
 
         var query = {}, transport;
-        if (config.acl && !util.checkAcl(config.acl, util.url.getDomain(config.remote))) {
-            throw new Error("Access denied for " + config.remote);
-        }
         
         if (!config.props) {
             config.props = {};
@@ -47,7 +44,10 @@
                 config.isSameOrigin = false;
             }
         }
-
+        if (!util.checkACL(config.acl, util.url.getDomain(config.remote))) {
+            throw new Error("Access denied for " + config.remote);
+        }
+        config.protocol = "2";
         switch (config.protocol) {
             case "0":
                 stack = [new RPC.behavior.sameorigin(config)];
@@ -57,7 +57,7 @@
                 break;
             case "2":
                 util.lang.extend(config, {
-                    interval: 100
+                    interval: 20
                 });
                 stack = [new RPC.behavior.hash(config)
                         ,new RPC.behavior.reliable(config)

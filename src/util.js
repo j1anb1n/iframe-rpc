@@ -43,7 +43,7 @@
     }
     util.lang.extend(util.windowName, window_name, true);
     // check Access Control List
-    util.checkAcl = function(acl, domain){
+    util.checkACL = function(acl, domain){
         if (!acl || !acl.length) return true; //'none' to accept 'all'
         // normalize into an array
         if (typeof acl == "string") {
