@@ -8,7 +8,7 @@
                 var origin = util.url.getDomain(getOrigin(event));
                 var message = event.data.substr(config.channel.length+1);
 
-                if (util.checkAcl(config.acl, origin)) {
+                if (util.checkACL(config.acl, origin)) {
                     pub.incoming(message);
                 } else {
                     throw new Error(origin + ' is not in Access Control List!');
@@ -21,6 +21,8 @@
                 if (message === 'ready') {
                     pub.outgoing('ready');
                     pub.ready();
+                } else {
+                    pub.up.incoming(message);
                 }
             }
             ,outgoing: function (message) {
@@ -39,7 +41,6 @@
                 }
             }
             ,ready: function () {
-                pub.incoming = pub.up.incoming;
                 pub.up.ready();
             }
             ,reset: function () {

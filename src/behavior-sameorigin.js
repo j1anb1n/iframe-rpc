@@ -11,6 +11,8 @@
                 incoming: function (message) {
                     if (message === 'ready') {
                         pub.ready();
+                    } else {
+                        pub.up.incoming(message);
                     }
                 }
                 ,outgoing: function (message) {
@@ -22,7 +24,6 @@
                 ,init: function () {
                 }
                 ,ready: function () {
-                    pub.incoming = pub.up.incoming;
                     pub.up.ready();
                     pub.outgoing('ready');
                 }
@@ -45,6 +46,8 @@
                 incoming: function (message) {
                     if (message === 'ready') {
                         pub.ready();
+                    } else {
+                        pub.up.incoming(message);
                     }
                 }
                 ,outgoing: function (message) {
@@ -56,7 +59,6 @@
                     pub.outgoing('ready');
                 }
                 ,ready: function () {
-                    pub.incoming = pub.up.incoming;
                     pub.up.ready();
                 }
                 ,reset: function () {
