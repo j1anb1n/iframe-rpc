@@ -34,6 +34,9 @@
             }
         } else {
             query = util.windowName.get('RPC');
+            if (!query) {
+                throw new Error('arguments missing');
+            }
             config.channel  = query.channel;
             config.protocol = query.protocol;
             config.remote   = query.remote;
