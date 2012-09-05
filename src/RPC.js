@@ -9,7 +9,7 @@ var RPC = function (config) {
 
     var callbacks = {};
     var methods = config.method = config.method || {};
-    var messageID = 0;
+    var messageID = 1;
 
     var transport = new RPC.Transport(config);
 
