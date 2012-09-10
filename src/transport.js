@@ -10,13 +10,10 @@
         }
 
         if (config.isHost) {
-            if (config.remote.substr(0, 4) !== 'http') {
-                config.remote = window.location.protocol + "//" + window.location.host + config.remote;
-            }
             if (typeof config.isSameOrigin === 'undefined') {
                 config.isSameOrigin = util.url.getMainDomain(window.location.href) === util.url.getMainDomain(config.remote);
             }
-
+            config.remoteOrigin = util.url.getOrigin(config.remote) || util.url.getOrigin(window.location.href);
             if (config.isSameOrigin) {
                 config.protocol = "0";
             } else if (window.postMessage || document.postMessage) {
@@ -41,6 +38,7 @@
             config.protocol = query.protocol;
             config.remote   = query.remote;
             config.helper   = query.helper;
+            config.remoteOrigin = query.remoteOrigin;
             if (query.remoteDomain === document.domain) {
                 config.isSameOrigin = true;
             } else {

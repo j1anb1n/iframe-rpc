@@ -96,6 +96,7 @@
             ,channel: config.channel
             ,protocol: config.protocol
             ,remoteDomain: document.domain
+            ,remoteOrigin: util.util.getOrigin(window.location.href)
             ,helper: config.helper
         }});
         config.props = config.props || {};

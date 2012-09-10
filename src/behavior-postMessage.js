@@ -1,6 +1,6 @@
 +function (Behavior, util) {
     Behavior.postMessage = function (config) {
-        var targetOrigin = util.url.getOrigin(config.remote),
+        var targetOrigin = config.remoteOrigin,
             postFnHost   = { postMessage: function () {} };
 
         util.dom.on(window, 'message', function (event) {
