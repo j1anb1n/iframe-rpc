@@ -19,7 +19,9 @@
         var pub = {
             incoming: function (message) {
                 if (message === 'ready') {
-                    pub.outgoing('ready');
+                    if (config.isHost) {
+                        pub.outgoing('ready');
+                    }
                     pub.ready();
                 } else {
                     pub.up.incoming(message);
