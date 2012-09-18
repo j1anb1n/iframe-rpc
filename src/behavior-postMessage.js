@@ -9,7 +9,16 @@
                 var message = event.data.substr(config.channel.length+1);
 
                 if (util.checkACL(config.acl, origin)) {
-                    pub.incoming(message);
+                    if (message === 'ready') {
+                        targetOrigin = getOrigin(event); // set up new target
+                        if (config.isHost) {
+                            pub.outgoing('ready');
+                        }
+
+                        pub.up.ready();
+                    } else {
+                        pub.incoming(message);
+                    }
                 } else {
                     throw new Error(origin + ' is not in Access Control List!');
                 }
@@ -18,14 +27,7 @@
 
         var pub = {
             incoming: function (message) {
-                if (message === 'ready') {
-                    if (config.isHost) {
-                        pub.outgoing('ready');
-                    }
-                    pub.ready();
-                } else {
-                    pub.up.incoming(message);
-                }
+                pub.up.incoming(message);
             }
             ,outgoing: function (message) {
                 postFnHost.postMessage(config.channel + "_" + message, targetOrigin);
