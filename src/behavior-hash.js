@@ -48,7 +48,9 @@
                 pub.up.ready();
             }
             ,destroy: function () {
-                hashWriter.parentNode.removeChild(hashWriter);
+                if (hashWriter && hashWriter.parentNode && hashWriter.parentNode.removeChild) {
+                    hashWriter.parentNode.removeChild(hashWriter);
+                }
             }
         });
 
