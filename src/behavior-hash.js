@@ -1,4 +1,4 @@
-+function (Behavior, util) {
+(function (Behavior, util) {
     Behavior.hash = function (config) {
         var pub, hashWriter, hashReader, baseUrl, lastMsg, timer;
         var isReady = false;
@@ -9,13 +9,12 @@
                 } else {
                     pub.up.incoming(message);
                 }
-            }
-            ,outgoing: function (message) {
+            },
+            outgoing: function (message) {
                 var url = baseUrl + "#_" + message;
                 hashWriter.contentWindow.location = url;
-            }
-
-            ,init: function () {
+            },
+            init: function () {
                 if (config.isHost) {
                     window.RPC_Fn.set(config.channel+"helper_ready", function (win, remote) {
                         if (util.checkACL(config.acl, remote)) {
@@ -30,9 +29,9 @@
                     });
                 } else {
                     hashWriter = util.dom.createFrame({
-                        nameString: config.channel+"helper_ready"+" "+window.location.href
-                        ,remote: config.helper
-                        ,onLoad: function () {
+                        nameString : config.channel+"helper_ready"+" "+window.location.href,
+                        remote     : config.helper,
+                        onLoad     : function () {
                             baseUrl = config.helper;
                             pub.outgoing('ready');
                         }
@@ -40,14 +39,14 @@
                     hashReader = window;
                     startPolling();
                 }
-            }
-            ,ready: function () {
+            },
+            ready: function () {
                 if (config.isHost) {
                     pub.outgoing('ready');
                 }
                 pub.up.ready();
-            }
-            ,destroy: function () {
+            },
+            destroy: function () {
                 if (hashWriter && hashWriter.parentNode && hashWriter.parentNode.removeChild) {
                     hashWriter.parentNode.removeChild(hashWriter);
                 }
@@ -77,4 +76,4 @@
             clearInterval(timer);
         }
     };
-}(RPC.behavior, RPC._util);
+}) (RPC.behavior, RPC._util);

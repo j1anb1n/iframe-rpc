@@ -1,4 +1,4 @@
-+function (Behavior) {
+(function (Behavior) {
     Behavior.reliable = function(config){
         var pub, callback, idOut = 0, idIn = 0, currentMessage = "";
 
@@ -22,24 +22,23 @@
                         pub.up.incoming(message);
                     }
                 }
-            }
-            ,outgoing: function(message, cb){
+            },
+            outgoing: function(message, cb){
                 currentMessage = message;
                 callback = cb;
                 pub.down.outgoing(idIn + "," + (++idOut) + "_" + message);
-            }
-            
-            ,init: function () {
+            },
+            init: function () {
                 pub.down.init();
-            }
-            ,ready: function () {
+            },
+            ready: function () {
                 idOut = 0;
                 idIn = 0;
                 currentMessage = "";
                 callback = null;
                 pub.up.ready();
-            }
-            ,destroy: function () {
+            },
+            destroy: function () {
                 idOut = 0;
                 idIn = 0;
                 currentMessage = "";
@@ -49,4 +48,4 @@
             }
         });
     };
-} (RPC.behavior);
+}) (RPC.behavior);

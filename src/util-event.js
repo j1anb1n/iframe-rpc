@@ -1,22 +1,22 @@
-+function (util) {
+(function (util) {
     util.eventEmiter = function (that) {
         var callbacks = {};
 
         that.on = function (event, callback, scope) {
             callbacks[event] = callbacks[event] || [];
             callbacks[event].push({
-                fn: callback
-                ,scope: scope
+                fn    : callback,
+                scope : scope
             });
-        }
+        };
         that.once = function (event, callback, scope) {
             callbacks[event] = callbacks[event] || [];
             callbacks[event].push({
-                fn: callback
-                ,scope: scope
-                ,type: 1 // if (cb.type) { call_once }
+                fn    : callback,
+                scope : scope,
+                type  : 1 // if (cb.type) { call_once }
             });
-        }
+        };
         that.off = function (event, callback) {
             if (!callbacks) {
                 callbacks[event] = []; //remove all events
@@ -30,7 +30,7 @@
                  }
             }
             callbacks[event] = temp;
-        }
+        };
         that.emit = function (event) {
             var cbs = callbacks[event] = callbacks[event] || [], cb, temp = [];
             var args = Array.prototype.slice.call(arguments, 1);
@@ -42,8 +42,8 @@
                 }
             }
             callbacks[event] = temp;
-        }
-        that.addListener = that.on;
-        that.removeListener = that.off
+        };
+        that.addListener    = that.on;
+        that.removeListener = that.off;
     };
-} (RPC._util);
+}) (RPC._util);

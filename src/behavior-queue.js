@@ -1,4 +1,4 @@
-+function (Behavior) {
+(function (Behavior) {
     Behavior.queue = function (config) {
         var pub, queue = [], incoming, waiting = true, maxLength = 1500;
 
@@ -27,8 +27,8 @@
                     incoming = "";
                     pub.up.incoming(message);
                 }
-            }
-            ,outgoing: function(message, fn){
+            },
+            outgoing: function(message, fn){
                 if (message.length > maxLength) {
                     var fragments = [], fragment;
                     // fragment into chunks
@@ -51,20 +51,19 @@
                     });
                 }
                 dispatch();
-            }
-            
-            ,init: function(){
+            },
+            init: function(){
                 pub.down.init();
-            }
-            ,ready: function(success){
+            },
+            ready: function(success){
                 queue = [];
                 waiting = false;
                 incoming = "";
 
                 dispatch();
                 pub.up.ready();
-            }
-            ,destroy: function(){
+            },
+            destroy: function(){
                 queue = [];
                 waiting = true;
                 incoming = "";
@@ -72,4 +71,4 @@
             }
         });
     };
-} (RPC.behavior);
+}) (RPC.behavior);

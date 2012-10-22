@@ -1,4 +1,4 @@
-+function (util) {
+(function (util) {
     var root = util.dom = {};
     var HAS_NAME_PROPERTY_BUG;
     // Event
@@ -91,14 +91,16 @@
             testForNamePropertyBug();
         }
         var iframe;
-        var nameString = config.nameString || util.JSON.stringify({'RPC': {
-            remote: window.location.href
-            ,channel: config.channel
-            ,protocol: config.protocol
-            ,remoteDomain: document.domain
-            ,remoteOrigin: util.url.getOrigin(window.location.href)
-            ,helper: config.helper
-        }});
+        var nameString = config.nameString || util.JSON.stringify({
+            'RPC': {
+                remote       : window.location.href,
+                channel      : config.channel,
+                protocol     : config.protocol,
+                remoteDomain : document.domain,
+                remoteOrigin : util.url.getOrigin(window.location.href),
+                helper       : config.helper
+            }
+        });
         config.props = config.props || {};
         if (HAS_NAME_PROPERTY_BUG) {
             iframe = document.createElement("<iframe name='" + nameString + "'/>");
@@ -149,4 +151,4 @@
         document.body.removeChild(form);
     }
 
-} (RPC._util);
+}) (RPC._util);

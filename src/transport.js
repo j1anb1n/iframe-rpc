@@ -1,4 +1,4 @@
-+function (RPC, util) {
+(function (RPC, util) {
     RPC.Transport = function (config) {
         var me = this, stack = [];
         util.eventEmiter(this);
@@ -59,10 +59,10 @@
                 util.lang.extend(config, {
                     interval: 20
                 });
-                stack = [new RPC.behavior.hash(config)
-                        ,new RPC.behavior.reliable(config)
-                        ,new RPC.behavior.queue(config)
-                        ,new RPC.behavior.verify(config)];
+                stack = [new RPC.behavior.hash(config),
+                         new RPC.behavior.reliable(config),
+                         new RPC.behavior.queue(config),
+                         new RPC.behavior.verify(config)];
                 break;
 
         }
@@ -71,7 +71,7 @@
 
         this.send = function (message) {
             stack.outgoing(message);
-        }
+        };
 
         this.init = function () {
             if (config.isHost) {
@@ -80,13 +80,13 @@
             stack.init();
             stack.incoming = function (message) {
                 me.emit('message', message);
-            }
+            };
             stack.ready = function () {
                 me.emit('ready');
-            }
-        }
+            };
+        };
         this.destroy = function () {
             stack.destroy();
-        }
-    }
-}(RPC, RPC._util);
+        };
+    };
+}) (RPC, RPC._util);

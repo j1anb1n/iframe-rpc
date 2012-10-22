@@ -1,4 +1,4 @@
-+function (Behavior, util) {
+(function (Behavior, util) {
     Behavior.verify = function (config) {
         var pub, mySecret, theirSecret, verified = false;
 
@@ -20,22 +20,22 @@
                         pub.up.incoming(message.substring(indexOf + 1));
                     }
                 }
-            }
-            ,outgoing: function(message, fn){
+            },
+            outgoing: function(message, fn){
                 pub.down.outgoing(mySecret + "_" + message, fn);
-            }
-            ,init: function () {
+            },
+            init: function () {
                 pub.down.init();
-            }
-            ,ready: function(success){
+            },
+            ready: function(success){
                 mySecret = "";
                 theirSecret = "";
 
                 if (!config.isHost) {
                     startVerification();
                 }
-            }
-            ,destroy: function () {
+            },
+            destroy: function () {
                 mySecret = "";
                 theirSecret = "";
 
@@ -48,4 +48,4 @@
             pub.down.outgoing(mySecret);
         }
     };
-} (RPC.behavior, RPC._util);
+}) (RPC.behavior, RPC._util);

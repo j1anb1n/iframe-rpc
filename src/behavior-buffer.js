@@ -1,19 +1,18 @@
-+function (Behavior, util) {
+(function (Behavior, util) {
     Behavior.buffer = function (config) {
         var messageBuffer = [];
 
         var pub = {
             incoming: function (message) {
                 pub.up.incoming(message);
-            }
-            ,outgoing: function (message) {
+            },
+            outgoing: function (message) {
                 messageBuffer.push(message);
-            }
-
-            ,init: function () {
+            },
+            init: function () {
                 pub.down.init();
-            }
-            ,ready: function () {
+            },
+            ready: function () {
                 // remove frome stack
                 pub.incoming = pub.up.incoming;
                 pub.outgoing = pub.down.outgoing;
@@ -23,12 +22,12 @@
                 });
 
                 pub.up.ready();
-            }
-            ,destroy: function () {
+            },
+            destroy: function () {
                 messageBuffer = [];
                 pub.down.destroy();
             }
-        }
+        };
         return pub;
     };
-} (RPC.behavior, RPC._util);
+}) (RPC.behavior, RPC._util);

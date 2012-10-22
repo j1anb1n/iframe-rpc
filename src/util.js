@@ -1,4 +1,4 @@
-+function (util) {
+(function (util) {
     // Window.name
     util.windowName = function (win) {
         if (win.name === "") {
@@ -36,11 +36,11 @@
             }
         };
     };
+    var window_name = {};
     try {
-        var window_name = util.windowName(window);
-    } catch (ex) {
-        var window_name = {};
-    }
+        window_name = util.windowName(window);
+    } catch (ex) { }
+
     util.lang.extend(util.windowName, window_name, true);
     // check Access Control List
     util.checkACL = function(acl, domain){
@@ -62,16 +62,16 @@
     
     util.chainStack = function (stackElements){
         var stack = {
-            incoming: function () { }
-            ,outgoing: function (message) {
+            incoming: function () { },
+            outgoing: function (message) {
                 stack.down.outgoing(message);
-            }
-            ,init: function () {
+            },
+            init: function () {
                 stack.down.init();
-            }
-            ,ready: function () { }
-            ,reset: function () { }
-            ,destroy: function () {
+            },
+            ready: function () { },
+            reset: function () { },
+            destroy: function () {
                 stack.down.destroy();
             }
         };
@@ -89,4 +89,4 @@
         }
         return stack;
     };
-} (RPC._util);
+}) (RPC._util);

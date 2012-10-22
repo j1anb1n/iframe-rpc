@@ -1,4 +1,4 @@
-+function (Behavior, util) {
+(function (Behavior, util) {
     Behavior.postMessage = function (config) {
         var targetOrigin = config.remoteOrigin,
             postFnHost   = { postMessage: function () {} };
@@ -28,12 +28,11 @@
         var pub = {
             incoming: function (message) {
                 pub.up.incoming(message);
-            }
-            ,outgoing: function (message) {
+            },
+            outgoing: function (message) {
                 postFnHost.postMessage(config.channel + "_" + message, targetOrigin);
-            }
-
-            ,init: function () {
+            },
+            init: function () {
                 if (config.isHost) {
                     var i = config.iframe;
                     postFnHost = ("postMessage" in i.contentWindow) ? i.contentWindow : i.contentWindow.document;
@@ -43,19 +42,19 @@
                         pub.outgoing('ready');
                     });
                 }
-            }
-            ,ready: function () {
+            },
+            ready: function () {
                 pub.up.ready();
-            }
-            ,reset: function () {
+            },
+            reset: function () {
 
-            }
-            ,destroy: function () {
+            },
+            destroy: function () {
                 config.iframe.parentNode.removeChild(config.iframe);
             }
-        }
+        };
         return pub;
-    }
+    };
 
     function getOrigin(event){
         if (event.origin) {
@@ -73,4 +72,4 @@
         }
         throw "Unable to retrieve the origin of the event";
     }
-} (RPC.behavior, RPC._util);
+}) (RPC.behavior, RPC._util);

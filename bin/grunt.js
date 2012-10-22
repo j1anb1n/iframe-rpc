@@ -28,7 +28,8 @@ module.exports = function(grunt) {
         },
         jshint: {
             options: {
-                browser: true
+                browser: true,
+                scripturl: true
             }
         },
         concat: {
@@ -36,6 +37,10 @@ module.exports = function(grunt) {
                 src: src,
                 dest: '../dist/rpc.js'
             },
+            'GJ.RPC': {
+                src: src,
+                dest: '/Users/jianbin/developer/ganji/ganji_sta/src/js/util/iframe/rpc.js'
+            }
         },
         min: {
             "rpc-min.js": {
