@@ -42,13 +42,13 @@ var RPC = function (config) {
 
     this.send = function (message) {
         transport.send(util.JSON.stringify(message));
-    }
+    };
 
     var Fn = function (method, params, onSuccess, onError) {
         var message = {
-            jsonrpc: "2.0"
-            ,method: method
-            ,params: params
+            jsonrpc : "2.0",
+            method  : method,
+            params  : params
         };
 
         if (util.lang.isFunction(params)) {
@@ -59,16 +59,16 @@ var RPC = function (config) {
         if (util.lang.isFunction(onSuccess) || util.lang.isFunction(onError)) {
             message.id = messageID;
             callbacks[messageID] = {
-                success: onSuccess || function () {}
-                ,error: onError || function () {}
-            }
+                success : onSuccess || function () {},
+                error   : onError || function () {}
+            };
         }
 
         messageID++;
         setTimeout(function () {
             me.send(message);
         }, 0);
-    }
+    };
 
     Fn.set = function(id, method) {
         methods[id] = method;
@@ -85,21 +85,21 @@ var RPC = function (config) {
             success: function (data) {
                 if (message.id) {
                     me.send({
-                        id: message.id
-                        ,result: data
+                        id     : message.id,
+                        result : data
                     });
                 }
                 return;
-            }
-            ,error: function (errorMsg, data, code) {
+            },
+            error: function (errorMsg, data, code) {
                 if (message.id) {
                     var msg = {
-                        id: message.id
-                        ,error: {
-                            code: code || -32099
-                            ,message: errorMsg
+                        id    : message.id,
+                        error : {
+                            code    : code || -32099,
+                            message : errorMsg
                         }
-                    }
+                    };
                     if (data) {
                         msg.data = data;
                     }
@@ -107,16 +107,17 @@ var RPC = function (config) {
                 }
                 return;
             }
-        }
+        };
         var fn = methods[message.method];
         if (!util.lang.isFunction(fn)) {
             return response.error("Procedure not found.", null, -32601);
         } else {
+            var result;
             try {
                 if (!util.lang.isArray(message.params)) {
                     message.params = [message.params];
                 }
-                var result = fn.apply({}, message.params);
+                result = fn.apply({}, message.params);
             } catch (ex) {
                 response.error(ex.message, ex.data);
             }
@@ -134,21 +135,21 @@ RPC._util = {};
 
 RPC.behavior = {};
 
-+function () {
+(function () {
     var callbacks = {};
     if (window.RPC_Fn) { return; }
     window.RPC_Fn = {
-        set: function (key, fn) {
+        set    : function (key, fn) {
             callbacks[key] = fn;
-        }
-        ,get: function (key) {
+        },
+        get    : function (key) {
             return callbacks[key];
-        }
-        ,remove: function (key) {
+        },
+        remove : function (key) {
             delete callbacks[key];
         }
-    }
-} ();
+    };
+})();
 
 if (module) {
     module.exports = RPC;
