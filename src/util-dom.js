@@ -87,9 +87,9 @@
     }
     
     var createFrame = root.createFrame = function (config){
-        // if (typeof HAS_NAME_PROPERTY_BUG === 'undefined') {
-        //     testForNamePropertyBug();
-        // }
+        if (typeof HAS_NAME_PROPERTY_BUG === 'undefined') {
+            testForNamePropertyBug();
+        }
         var iframe;
         var nameString = config.nameString || util.JSON.stringify({
             'RPC': {
