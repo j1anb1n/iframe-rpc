@@ -303,8 +303,8 @@ if (typeof module !== 'undefined') {
 }) (RPC._util);
 (function (util) {
     util.JSON = {
-        stringify : GJ.jsonEncode,
-        parse     : GJ.jsonDecode
+        stringify: JSON.stringify,
+        parse: JSON.parse
     };
 }) (RPC._util);
 (function (util) {

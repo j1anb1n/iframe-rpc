@@ -1,6 +1,6 @@
-+function (util) {
+(function (util) {
     util.JSON = {
-        stringify: JSON.stringify
-        ,parse: JSON.parse
+        stringify: JSON.stringify,
+        parse: JSON.parse
     };
-} (RPC._util);
+}) (RPC._util);
