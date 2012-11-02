@@ -23,6 +23,10 @@ module.exports = function(grunt) {
     });
 
     grunt.initConfig({
+        meta: {
+            'GJ.add': 'GJ.add("js/util/iframe/rpc.js", [], function (require, exports, module) {',
+            'GJ.add.end': '});'
+        },
         lint: {
             all: src
         },
@@ -38,7 +42,7 @@ module.exports = function(grunt) {
                 dest: '../dist/rpc.js'
             },
             'GJ.RPC': {
-                src: src,
+                src: ['<GJ.add>'].concat(src),
                 dest: '/Users/jianbin/developer/ganji/ganji_sta/src/js/util/iframe/rpc.js'
             }
         },
