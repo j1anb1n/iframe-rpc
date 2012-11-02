@@ -151,6 +151,6 @@ RPC.behavior = {};
     };
 })();
 
-if (module) {
+if (typeof module !== 'undefined') {
     module.exports = RPC;
 }
